@@ -1,0 +1,23 @@
+{{- range $name, $svc := .Values.services -}}
+{{- if $svc.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "togglemaster.fullname" $ }}-{{ $name }}
+  labels:
+    app.kubernetes.io/name: {{ include "togglemaster.name" . }}
+    app.kubernetes.io/instance: {{ $.Release.Name }}
+    app.kubernetes.io/component: {{ $name }}
+spec:
+  type: {{ default "ClusterIP" $svc.service.type }}
+  ports:
+    - port: {{ $svc.service.port }}
+      targetPort: {{ $svc.port }}
+      protocol: TCP
+      name: http
+  selector:
+    app.kubernetes.io/instance: {{ $.Release.Name }}
+    app.kubernetes.io/component: {{ $name }}
+---
+{{- end }}
+{{- end }}

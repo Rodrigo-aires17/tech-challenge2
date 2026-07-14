@@ -1,0 +1,117 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: auth-service
+  namespace: auth-service
+  labels:
+    app: auth-service
+spec:
+  replicas: 2
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  selector:
+    matchLabels:
+      app: auth-service
+  template:
+    metadata:
+      labels:
+        app: auth-service
+        version: "1.0"
+    spec:
+      containers:
+      - name: auth-service
+        image: 589138972429.dkr.ecr.us-east-1.amazonaws.com/a/auth-service:v1.5
+        imagePullPolicy: IfNotPresent
+        ports:
+        - name: http
+          containerPort: 8000
+          protocol: TCP
+        
+        # Variáveis de ambiente
+        env:
+        - name: DATABASE_URL
+          valueFrom:
+            secretKeyRef:
+              name: auth-service-secrets
+              key: DATABASE_URL
+        - name: MASTER_KEY
+          valueFrom:
+            secretKeyRef:
+              name: auth-service-secrets
+              key: MASTER_KEY
+        - name: APP_NAME
+          valueFrom:
+            configMapKeyRef:
+              name: auth-service-config
+              key: APP_NAME
+        - name: LOG_LEVEL
+          valueFrom:
+            configMapKeyRef:
+              name: auth-service-config
+              key: LOG_LEVEL
+        - name: PORT
+          valueFrom:
+            configMapKeyRef:
+              name: auth-service-config
+              key: PORT
+        
+        # Resource requests e limits
+        resources:
+          requests:
+            cpu: 100m
+            memory: 128Mi
+          limits:
+            cpu: 250m
+            memory: 256Mi
+        
+        # # Readiness Probe
+        # readinessProbe:
+        #   httpGet:
+        #     path: /health
+        #     port: 8000
+        #     scheme: HTTP
+        #   initialDelaySeconds: 10
+        #   periodSeconds: 10
+        #   timeoutSeconds: 5
+        #   successThreshold: 1
+        #   failureThreshold: 3
+        
+        # # Liveness Probe
+        # livenessProbe:
+        #   httpGet:
+        #     path: /health
+        #     port: 8000
+        #     scheme: HTTP
+        #   initialDelaySeconds: 30
+        #   periodSeconds: 15
+        #   timeoutSeconds: 5
+        #   successThreshold: 1
+        #   failureThreshold: 3
+        
+        # # Startup Probe (para aplicações que demoram para iniciar)
+        # startupProbe:
+        #   httpGet:
+        #     path: /health
+        #     port: 8000
+        #     scheme: HTTP
+        #   initialDelaySeconds: 5
+        #   periodSeconds: 5
+        #   timeoutSeconds: 3
+        #   failureThreshold: 30
+      
+      # Política de divisão de pods entre nós
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 100
+            podAffinityTerm:
+              labelSelector:
+                matchExpressions:
+                - key: app
+                  operator: In
+                  values:
+                  - auth-service
+              topologyKey: kubernetes.io/hostname

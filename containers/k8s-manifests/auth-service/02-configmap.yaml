@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: auth-service-config
+  namespace: auth-service
+data:
+  APP_NAME: "auth-service"
+  LOG_LEVEL: "INFO"
+  PORT: "8000"
+  # Service URLs - atualize com os endereços do seu cluster
+  FLAG_SERVICE_URL: "http://flag-service.flag-service.svc.cluster.local:8002"
+  AUTH_SERVICE_URL: "http://auth-service.auth-service.svc.cluster.local:8000"
