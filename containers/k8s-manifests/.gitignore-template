@@ -1,0 +1,62 @@
+#!/usr/bin/env bash
+# .gitignore para k8s-manifests
+# Coloque este arquivo na raiz do repositório git
+
+# Cache local
+*.cache
+.cache/
+.tmp/
+
+# Logs
+*.log
+logs/
+
+# OS Files
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+*~
+
+# IDE
+.vscode/
+.idea/
+*.iml
+.project
+.classpath
+
+# Secrets e configurações sensíveis (NÃO COMMITAR!)
+# Use sealed-secrets ou external-secrets-operator em produção
+secrets.yaml
+*.secret
+.env
+.env.local
+.env.*.local
+
+# Terraform (se usar)
+.terraform/
+*.tfstate
+*.tfstate.*
+.terraform.lock.hcl
+
+# Helm (se usar)
+charts/
+*.tgz
+
+# Arquivos gerados
+*.out
+dist/
+build/
+
+# Node (se usar)
+node_modules/
+package-lock.json
+
+# Python (se usar)
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Diretórios de teste
+test-output/
+coverage/
